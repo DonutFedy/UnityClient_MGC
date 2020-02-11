@@ -1,4 +1,4 @@
-﻿#define NOTLOGINSERVER
+﻿//#define NOTLOGINSERVER
 
 using PACKET;
 using PROTOCOL;

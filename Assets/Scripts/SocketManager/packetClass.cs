@@ -74,9 +74,7 @@ namespace PACKET
     public class C_LoginResponsePacket : C_LoginPacket
     {
         public bool         m_bFlag;
-        public Int32        m_nGold;
         public string       m_nickname;
-        public string       m_guildName;
         public C_LoginResponsePacket()
         {
             setType(LoginPacketType.loginPacketTypeLoginResponse);
@@ -87,9 +85,7 @@ namespace PACKET
             buf.get(ref m_bFlag);
             if( m_bFlag)
             {
-                buf.get(ref m_nGold);
                 buf.get(ref m_nickname);
-                buf.get(ref m_guildName);
             }
         }
 
@@ -101,9 +97,7 @@ namespace PACKET
             buf.set(m_bFlag);
             if(m_bFlag)
             {
-                buf.set(m_nGold);
                 buf.set(m_nickname);
-                buf.set(m_guildName);
             }
             return buf;
         }

@@ -17,6 +17,7 @@ public class mainMenuUI : UI
         EMPTY_PAGE_UI = 2,
         FRIEND_UI = 3,
         GUILD_UI = 4,
+        SINGLE_GAME_UI,
     }
     
 
@@ -33,6 +34,7 @@ public class mainMenuUI : UI
     [SerializeField]
     Text                        m_pageNumText;
     int                         m_nCurPageNUM;
+    int                         m_nPrePageNUM;
     int                         m_nOffsetPageNUM;
 
     #endregion
@@ -95,6 +97,11 @@ public class mainMenuUI : UI
                 m_roomInfoList[i].setRoomListIndex(i);
             }
         }
+        if( m_roomInfoList.Count<=0 )
+        {
+            m_roomListParent.gameObject.SetActive(false);
+            m_emptyRoomText.SetActive(true);
+        }
 
     }
 
@@ -150,8 +157,9 @@ public class mainMenuUI : UI
     void setLobby()
     {
         m_bIgnoreChat = false;
-        m_pageNumText.text = "??";
         m_nCurPageNUM = 1;
+        m_nPrePageNUM = m_nCurPageNUM;
+        m_pageNumText.text = m_nCurPageNUM + "";
 
         m_bisFocuse = true;
         // 초기화
@@ -189,6 +197,11 @@ public class mainMenuUI : UI
         m_bIgnoreChat = true;
     }
 
+    public void openSingleGameUI()
+    {
+        openUI((int)INDEX_MAINMENU_UI.SINGLE_GAME_UI);
+        m_bIgnoreChat = true;
+    }
 
     public void logout()
     {
@@ -221,6 +234,11 @@ public class mainMenuUI : UI
         m_chatBox.sendChat();
     }
 
+    public void rerequestRoomListBTN()
+    {
+        requestRoomList(m_nCurPageNUM);
+    }
+
 
     #endregion
 
@@ -250,21 +268,24 @@ public class mainMenuUI : UI
 
         m_nCurPageNUM += m_nOffsetPageNUM;
         m_nOffsetPageNUM = 0;
-        m_pageNumText.text = m_nCurPageNUM + "";
         if (curData.m_listCount <= 0)
         {
-
-            clearRoomList();
-            m_roomListParent.gameObject.SetActive(false);
-            m_emptyRoomText.SetActive(true);
             if (m_nCurPageNUM != 1)
             {
                 m_nCurPageNUM -= 1;
                 requestRoomList(m_nCurPageNUM);
             }
+            else
+            {
+                clearRoomList();
+                m_roomListParent.gameObject.SetActive(false);
+                m_emptyRoomText.SetActive(true);
+            }
         }
         else
         {
+            m_nPrePageNUM = m_nCurPageNUM;
+            m_pageNumText.text = m_nCurPageNUM + "";
             clearRoomList();
             for (int i = 0; i < curData.m_listCount; ++i)
             {

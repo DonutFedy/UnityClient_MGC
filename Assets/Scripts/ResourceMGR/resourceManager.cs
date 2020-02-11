@@ -88,7 +88,6 @@ public class resourceManager : management
         }
         return null;
     }
-
     public Sprite getUIsprite(int nIndex)
     {
         return m_UIspriteList[nIndex];

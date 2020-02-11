@@ -185,6 +185,8 @@ public class chatBox : MonoBehaviour
                 break;
         }
 
+        if( curData == null)
+            return;
         GameManager.m_Instance.makePacket(curData);
 
         focusIF();

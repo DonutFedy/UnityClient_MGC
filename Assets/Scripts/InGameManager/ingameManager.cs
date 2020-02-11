@@ -7,7 +7,7 @@ public class ingameManager : management {
     
     public override void init()
     {
-        throw new System.NotImplementedException();
+        // 진우님이 만든 무언가
     }
 
     public override void release()

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using PACKET;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -35,7 +36,20 @@ public class waitingResponse : MonoBehaviour
     public void closeOkMsgUI()
     {
         m_okMsgObj.SetActive(false);
+        //
+        C_Anomaly anomaly = new C_Anomaly();
+        if(GameManager.m_Instance.isConnectedMainServer())
+        {
+            GameManager.m_Instance.disconnect_mainServer();
+            GameManager.m_Instance.setConnectStateMainServer(false,true);
+        }
+        else if(GameManager.m_Instance.isConnectedLoginServer())
+        {
+            GameManager.m_Instance.disconnect_loginServer();
+            GameManager.m_Instance.setConnectStateLoginServer(false, true);
+        }
         m_overTimeFunc?.Invoke();
+
     }
 
     void init()

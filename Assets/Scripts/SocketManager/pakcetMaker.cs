@@ -255,12 +255,15 @@ namespace PACKET
                 case BasePacketType.basePacketTypeLogin:
                     packet = makeLoginPacket(buf);
                     break;
+                case BasePacketType.basePacketTypePreLoad:
+                    packet = makePreLoadPacket(buf);
+                    break;
                 case BasePacketType.basePacketTypeGame:
                     break;
                 case BasePacketType.basePacketTypeRoom:
                     packet = makeRoomPacket(buf);
                     break;
-                case BasePacketType.basePacketTypeShop:
+                case BasePacketType.basePacketTypeMarket:
                     break;
                 case BasePacketType.basePacketTypeRanking:
                     break;
@@ -323,6 +326,23 @@ namespace PACKET
                 case LoginPacketType.loginPacketTypeSize:
                     break;
             }
+            return packet;
+        }
+
+
+        static C_BasePreLoadPacket makePreLoadPacket(C_Buffer buf)
+        {
+            C_BasePreLoadPacket packet = null;
+
+            byte type = 0;
+            buf.get(ref type);
+            switch ((PreLoadType)type)
+            {
+                case PreLoadType.preLoadPlayerInfo:
+                    packet = new C_PreLoadPacketLoadPlayerInfo();
+                    break;
+            }
+
             return packet;
         }
 

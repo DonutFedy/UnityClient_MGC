@@ -58,7 +58,7 @@ public class GameManager : MonoBehaviour {
 
     #region LOGIN DATA
     bool                    m_bLogin;
-    C_LoginResponsePacket   m_userData;
+    S_UserData              m_userData;
     S_UserAccessData        m_accessData;
     #endregion
 
@@ -328,11 +328,22 @@ public class GameManager : MonoBehaviour {
         return m_fGameTime;
     }
 
-    public void setUserData(C_LoginResponsePacket data, S_UserAccessData accessData)
+    /// <summary>
+    /// 로그인 서버에서 로그인 완료시 계정 정보를 세팅
+    /// </summary>
+    /// <param name="accessData"></param>
+    public void setAccessData(S_UserAccessData accessData)
     {
-        m_userData = data;
         m_accessData = accessData;
         setLoginState(true);
+    }
+    /// <summary>
+    /// 게임 서버에 접속 후, 로딩 시에 받은 데이터로 유저 데이터를 세팅
+    /// </summary>
+    /// <param name="data"></param>
+    public void setUserData(C_PreLoadPacketLoadPlayerInfo data)
+    {
+        m_userData.m_nickName = data.m_playerName;
     }
     public void setUserGuildData(bool bExistGuild, object guildInfo)
     {
@@ -353,11 +364,11 @@ public class GameManager : MonoBehaviour {
     }
     public string getUserID()
     {
-        return "";
+        return m_accessData.m_accessID;
     }
     public string getUserNickName()
     {
-        return m_userData.m_nickname;
+        return m_userData.m_nickName;
     }
     #endregion
 

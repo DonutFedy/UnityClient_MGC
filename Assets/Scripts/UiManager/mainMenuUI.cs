@@ -18,8 +18,10 @@ public class mainMenuUI : UI
         FRIEND_UI = 3,
         GUILD_UI = 4,
         SELECT_GAME_UI,
+        LOADING_DATA_UI,
     }
     
+    bool                        m_bLoadingData;
 
     #region RoomLIST
     [SerializeField]
@@ -61,7 +63,7 @@ public class mainMenuUI : UI
 
     protected override void setUI()
     {
-        m_bIgnoreChat = false;
+        m_bLoadingData  = false;
         setLobby();
         m_chatBox.setChatBox();
     }
@@ -151,7 +153,10 @@ public class mainMenuUI : UI
 
     public override void setOnCloseSubUI()
     {
-        setLobby();
+        if(m_bLoadingData == false)
+            endLoadingData();
+        else
+           setLobby();
     }
 
     void setLobby()
@@ -160,14 +165,9 @@ public class mainMenuUI : UI
         m_nCurPageNUM = 1;
         m_nPrePageNUM = m_nCurPageNUM;
         m_pageNumText.text = m_nCurPageNUM + "";
-
-        m_bisFocuse = true;
-        // 초기화
-        m_bWaiting = false;
-        // 방리스트 초기화
-        clearRoomList();
-        // 방리스트 요청
-        requestRoomList(m_nCurPageNUM);
+        m_bisFocuse = false;
+        if(m_bLoadingData == false)
+            startLoadingData();
     }
 
     #endregion
@@ -338,6 +338,30 @@ public class mainMenuUI : UI
     #endregion
 
     #region UI OPNE / CLOSE
+
+
+    /// <summary>
+    /// loading data UI를 열어서 유저 데이터를 받는다.
+    /// </summary>
+    void startLoadingData()
+    {
+        openUI((int)INDEX_MAINMENU_UI.LOADING_DATA_UI);
+    }
+
+    /// <summary>
+    /// 로딩이 끝나면 불릴 함수
+    /// </summary>
+    void endLoadingData()
+    {
+        m_bLoadingData  = true;
+        m_bisFocuse     = true;
+        // 초기화
+        m_bWaiting      = false;
+        // 방리스트 초기화
+        clearRoomList();
+        // 방리스트 요청
+        requestRoomList(m_nCurPageNUM);
+    }
 
     /// <summary>
     /// 게임 룸 세팅 및 open

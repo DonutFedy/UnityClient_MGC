@@ -245,11 +245,12 @@ public class gameRoomUI : UI
 #if DEBUGMODE
         m_chatBox.updateChat(data);
         C_BaseSocialPacket curData = (C_BaseSocialPacket)data;
-        //userInfoPrefab clientUser = m_userInfoList.Find((x) => { return x.get == chatData.m_source; });
-        userInfoPrefab clientUser = m_userInfoList[m_clientUserSlotIndex-1];
-        if (clientUser && curData.m_socialType == SocialPacketType.packetTypeSocialChatNormalResponse)
+        if (curData.m_socialType != SocialPacketType.packetTypeSocialChatNormalResponse) return;
+        C_SocialPacketChatRornalResponse normalData = (C_SocialPacketChatRornalResponse)curData;
+
+        userInfoPrefab clientUser = m_userInfoList.Find((x) => { return x.getNickName() == normalData.m_nickname; });
+        if (clientUser)
         {
-            C_SocialPacketChatRornalResponse normalData = (C_SocialPacketChatRornalResponse)curData;
             clientUser.chating(normalData.m_message);
         }
 #endif

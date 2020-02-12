@@ -305,7 +305,7 @@ public class loginUI : UI
             S_UserAccessData accessData = new S_UserAccessData();
             accessData.m_accessID = m_idInputfield.text;
             accessData.m_accessPW = m_pwInputfield.text;
-            GameManager.m_Instance.setUserData(curData, accessData);
+            GameManager.m_Instance.setAccessData(accessData);
             clearUserInfo(true);
             m_userNickNameText.text = curData.m_nickname;
         }

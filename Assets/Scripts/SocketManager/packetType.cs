@@ -9,10 +9,12 @@ namespace PACKET
     public enum BasePacketType : byte
     {
         basePacketTypeNone = 0,
+        // client to server packet
         basePacketTypeLogin,
+        basePacketTypePreLoad,
         basePacketTypeRoom,
         basePacketTypeGame,
-        basePacketTypeShop,
+        basePacketTypeMarket,
         basePacketTypeRanking,
         basePacketTypeSocial,
         basePacketTypeSize,
@@ -41,6 +43,15 @@ namespace PACKET
 
         loginPacketTypeSize,
     };
+
+    public enum PreLoadType : byte
+    {
+        packetTypeNone = 0,
+
+        preLoadPlayerInfo,
+
+        packetTypeCount,
+    }
 
     public enum RoomPacketType : byte
     {

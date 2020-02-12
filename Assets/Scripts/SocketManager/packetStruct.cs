@@ -74,6 +74,11 @@ namespace PACKET
         }
     }
 
+    public struct S_UserData
+    {
+        public string       m_nickName;
+    }
+
     #endregion
 
 

@@ -403,7 +403,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &13065791
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -423,6 +423,7 @@ MonoBehaviour:
   - {fileID: 207494136}
   - {fileID: 1127420364}
   - {fileID: 444015414}
+  - {fileID: 685711449}
   m_uiManager: {fileID: 0}
   m_waitingUI: {fileID: 1318025849}
   m_roomListParent: {fileID: 1700699293}
@@ -15807,7 +15808,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &685711448
 RectTransform:
   m_ObjectHideFlags: 0
@@ -48843,12 +48844,12 @@ PrefabInstance:
     - target: {fileID: 4216515751534225636, guid: 57c567295eebee7429668d760aab5a76,
         type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4216515751534225636, guid: 57c567295eebee7429668d760aab5a76,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 57c567295eebee7429668d760aab5a76, type: 3}

@@ -30,12 +30,7 @@ public class loadingUI : UI
     Coroutine           m_loadingCoroutine;
 
 
-    private void Start()
-    {
-        setUI();
-    }
 
-    int m_nCloseCount = 0;
     public override void initUI(UI manager, int uiType)
     {
         base.initUI(manager, uiType);
@@ -44,6 +39,8 @@ public class loadingUI : UI
     public override void update(C_BasePacket eventData)
     {
         // type check . if preData Type => setData
+        if (eventData.m_basicType == BasePacketType.basePacketTypePreLoad)
+            recvLoadingData(eventData);
     }
 
     public override void releaseUI()
@@ -112,6 +109,21 @@ public class loadingUI : UI
             }
             yield return null;
         }
+
+        exitUI(1);
+    }
+
+    void recvLoadingData(C_BasePacket eventData)
+    {
+        C_BasePreLoadPacket data = (C_BasePreLoadPacket)eventData;
+
+        if (data.m_preLoadType != PreLoadType.preLoadPlayerInfo) return;
+
+        C_PreLoadPacketLoadPlayerInfo curData = (C_PreLoadPacketLoadPlayerInfo)data;
+
+        GameManager.m_Instance.setUserData(curData);
+        // 일단은 1개만 받으면 되니 완료 시킴
+        m_fCurLoadingState = 1;
     }
 
     #endregion

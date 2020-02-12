@@ -318,6 +318,47 @@ namespace PACKET
 
     #endregion
 
+    #region PRELOAD
+
+
+    public abstract class C_BasePreLoadPacket : C_BasePacket
+    {
+        public PreLoadType m_preLoadType;
+
+
+        protected void setType(PreLoadType type)
+        {
+            m_basicType = BasePacketType.basePacketTypePreLoad;
+            m_preLoadType = type;
+        }
+    }
+
+    public class C_PreLoadPacketLoadPlayerInfo : C_BasePreLoadPacket
+    {
+        public string           m_playerName;
+        public C_PreLoadPacketLoadPlayerInfo()
+        {
+            setType(PreLoadType.preLoadPlayerInfo);
+            m_bResponse = true;
+        }
+        public override void deserialize(C_Buffer buf)
+        {
+            buf.get(ref m_playerName);
+        }
+
+        public override C_Buffer serialize()
+        {
+            C_Buffer buf = new C_Buffer();
+            buf.set((byte)m_basicType);
+            buf.set((byte)m_preLoadType);
+            buf.set(m_playerName);
+            return buf;
+        }
+    }
+
+    #endregion
+
+
 
     #region ROOM
 

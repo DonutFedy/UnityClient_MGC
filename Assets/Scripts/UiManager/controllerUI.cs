@@ -1,4 +1,5 @@
 ﻿//#define NOTLOGINSERVER
+#define IGNORLOGIN
 
 using PACKET;
 using PROTOCOL;
@@ -40,7 +41,8 @@ public class controllerUI : UI
                 return;
 #endif
                 m_waitReconnectUI.SetActive(true);
-                m_uiList[m_uiIndexStack.Peek()].stopWaitingUI();
+                //m_uiList[m_uiIndexStack.Peek()].stopWaitingUI();
+                m_uiList[m_uiIndexStack.Peek()].releaseUI();
                 m_uiList[m_uiIndexStack.Peek()].closeUI(1);
                 break;
             case AnomalyType.mainServer_Reconnect:
@@ -50,6 +52,7 @@ public class controllerUI : UI
                 {
                     closeUI(1);
                 }
+                //openUI((int)INDEX_OF_CONTROLLER_UI.LOGIN_UI);
                 m_uiList[m_uiIndexStack.Peek()].releaseUI();
 
                 GameManager.m_Instance.connect_loginServer();

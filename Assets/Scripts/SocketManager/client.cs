@@ -171,12 +171,12 @@ public class client
     {
         C_Buffer curBuf = eventData.serialize();
 
-        if(eventData.m_basicType == BasePacketType.basePacketTypeLogin)
+        if(eventData.m_basicType == BasePacketType.basePacketTypeLogin && m_bConnected_loginServer)
         {
             m_stream_loginServer.Write(curBuf.m_buf, 0, curBuf.m_length);
             m_stream_loginServer.Flush();
         }
-        else if(m_tcp_mainServer != null)
+        else if(m_tcp_mainServer != null && m_bConnected_mainServer)
         {
             m_stream_mainServer.Write(curBuf.m_buf, 0, curBuf.m_length);
             m_stream_mainServer.Flush();

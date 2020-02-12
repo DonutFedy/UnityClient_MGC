@@ -1,5 +1,6 @@
 ﻿
 
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -22,5 +23,6 @@ namespace PROTOCOL
         [Description("캐치 마인드")]
         CATCH_MIND = 3
     }
+    
 
 }

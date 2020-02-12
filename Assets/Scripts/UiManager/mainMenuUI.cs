@@ -17,7 +17,7 @@ public class mainMenuUI : UI
         EMPTY_PAGE_UI = 2,
         FRIEND_UI = 3,
         GUILD_UI = 4,
-        SINGLE_GAME_UI,
+        SELECT_GAME_UI,
     }
     
 
@@ -197,9 +197,9 @@ public class mainMenuUI : UI
         m_bIgnoreChat = true;
     }
 
-    public void openSingleGameUI()
+    public void openSelectGameUI()
     {
-        openUI((int)INDEX_MAINMENU_UI.SINGLE_GAME_UI);
+        openUI((int)INDEX_MAINMENU_UI.SELECT_GAME_UI);
         m_bIgnoreChat = true;
     }
 

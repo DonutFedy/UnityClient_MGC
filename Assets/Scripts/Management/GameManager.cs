@@ -91,8 +91,7 @@ public class GameManager : MonoBehaviour {
         }
         catch(Exception ex)
         {
-            writeErrorLog(ex.Message);
-            //m_socketMGR.
+            //writeErrorLog(ex.Message);
         }
     }
     #region INIT

@@ -162,6 +162,7 @@ public class loginUI : UI
 
     public void tryLogin()
     {
+
 #if NOTLOGINSERVER
         try
         {
@@ -379,7 +380,7 @@ public class loginUI : UI
 
 
 
-    #region Input Field Check
+#region Input Field Check
 
     bool checkTextOnlyAscii(char c)
     {
@@ -438,10 +439,10 @@ public class loginUI : UI
         }
     }
 
-    #endregion
+#endregion
 
 
-    #region UI CLOSE / OPEN
+#region UI CLOSE / OPEN
 
     void openFailUI(string errorMSG)
     {
@@ -451,7 +452,7 @@ public class loginUI : UI
 
 
 
-    #endregion
+#endregion
 
 
 

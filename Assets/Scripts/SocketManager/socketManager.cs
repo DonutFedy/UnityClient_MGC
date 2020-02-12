@@ -64,7 +64,7 @@ public class socketManager : management
                 GameManager.m_Instance.makeUiEvent(curEvent);
             }
         }
-        else
+        else 
         {
             m_client.sendMessage(curEvent);
         }

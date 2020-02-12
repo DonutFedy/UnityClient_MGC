@@ -42,6 +42,7 @@ public class joinUI : UI
     public override void releaseUI()
     {
         // 중단
+        clearIF();
     }
 
     protected override void setUI()
@@ -60,6 +61,12 @@ public class joinUI : UI
         base.stopWaiting();
     }
 
+    void clearIF()
+    {
+        m_idInputField.text = "";
+        m_pwInputField.text = "";
+        m_nicknameInputField.text = "";
+    }
 
     public void tryJoin()
     {

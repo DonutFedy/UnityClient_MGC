@@ -102,7 +102,8 @@ public class singleGameUI : UI
 
         // start game ui popup
         // -> ui close 시에 startGame 호출
-        ((ResultUI)m_uiList[(int)INDEX_OF_SINGLEGAME_UI.RESULT_UI]).setResultMSG("게임 시작!",1);
+        string titleText = "<size=50>게임 시작!</size>\n<Size=30>돌아다니는 얼음을 피해 위로 올라가자!\n맞으면 아프니 조심!</Size>";
+        ((ResultUI)m_uiList[(int)INDEX_OF_SINGLEGAME_UI.RESULT_UI]).setResultMSG(titleText, 1);
         openUI((int)INDEX_OF_SINGLEGAME_UI.RESULT_UI);
     }
 
@@ -158,7 +159,6 @@ public class singleGameUI : UI
     void upFloor(object data)
     {
         if (m_bEndGame) return;
-        Debug.Log("up floor");
         m_nCurFloor = (int)data;
         m_floorText.text = m_nCurFloor + "층";
     }

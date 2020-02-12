@@ -31,6 +31,11 @@ public class singleGameManager : MonoBehaviour
     GameObject              m_gameStageOBJ;
 
 
+    float                   m_fCurrentStayTime;
+    [SerializeField]
+    float                   m_fLimitStayTime = 5;
+
+
     #region GAME OBJ
     [SerializeField]
     GameObject              m_playerCharacterOBJ;
@@ -82,14 +87,7 @@ public class singleGameManager : MonoBehaviour
 
 
     #endregion
-
-    // Start is called before the first frame update
-    void Start()
-    {
-#if DEBUGMODE
-        //setGame();
-#endif
-    }
+    
     private void OnDisable()
     {
         closeGame();
@@ -106,6 +104,9 @@ public class singleGameManager : MonoBehaviour
         {
             return;
         }
+
+        m_fCurrentStayTime += Time.deltaTime;
+
         if (m_fCurrentOnHitCoolTime > 0)
             m_fCurrentOnHitCoolTime -= Time.deltaTime;
 
@@ -120,6 +121,7 @@ public class singleGameManager : MonoBehaviour
                 m_fCurMoveCoolTime = m_fMoveCoolTime;
                 // move down another obj list
                 moveVerticalOBJ();
+                m_fCurrentStayTime = 0;
             }
             else
             {
@@ -134,16 +136,46 @@ public class singleGameManager : MonoBehaviour
                 }
                 if (direction != 0)
                 {
+                    m_fCurrentStayTime  = 0;
                     m_nCurCharacterPosX += direction;
-                    m_fCurMoveCoolTime = m_fMoveCoolTime;
+                    m_fCurMoveCoolTime  = m_fMoveCoolTime;
                     m_playerCharacterOBJ.transform.localPosition = new Vector3(m_nCurCharacterPosX, 0);
                 }
             }
         }
         else
             m_fCurMoveCoolTime -= Time.deltaTime;
+
+        if (m_fCurrentStayTime >= m_fLimitStayTime)
+        {
+            m_fCurrentStayTime = 0;
+            makeRestZoneObstacleOBJ();
+        }
+        else if(  m_fCurrentStayTime > 0)
+        {
+            RestZone restZone = getCurrentRestZone();
+            if (restZone != null)
+                restZone.setColorG(1-getStayTimeRate());
+        }
+
         // move another obj horizontal
         moveHorizontalOBJ();
+    }
+
+    /// <summary>
+    /// 일정 시간 안움직이면 발생
+    /// </summary>
+    void makeRestZoneObstacleOBJ()
+    {
+        int nCurRealFloor = m_nCurMoveLength;
+        RestZone restZone = getCurrentRestZone();
+        if(restZone!=null)    
+           restZone.makeObstacleZone();
+    }
+
+    RestZone getCurrentRestZone()
+    {
+        return m_restZoneList.Find(x => x.m_curFloor == m_nCurMoveLength);
     }
 
     void moveHorizontalOBJ()
@@ -159,9 +191,14 @@ public class singleGameManager : MonoBehaviour
 
     void moveVerticalOBJ()
     {
+        RestZone restZone = getCurrentRestZone();
+        if (restZone != null)
+            restZone.disableFlag();
         ++m_nCurMoveLength;
+        restZone = getCurrentRestZone();
+        if (restZone != null)
+            restZone.onFlag();
         m_funcList[(int)FUNC_TYPE.UP_FLOOR](m_nCurMoveLength);
-        Debug.Log("cur floor :: " + m_nCurMoveLength);
         for (int i = 0; i < m_objList.Count; ++i)
             m_objList[i].moveDown();
         for(int i = 0; i < m_restZoneList.Count;++i)
@@ -176,6 +213,10 @@ public class singleGameManager : MonoBehaviour
         }
     }
 
+    float getStayTimeRate()
+    {
+        return m_fCurrentStayTime/m_fLimitStayTime;
+    }
 
     public void getNextFloor(ref float fSpeed)
     {
@@ -193,7 +234,7 @@ public class singleGameManager : MonoBehaviour
             // 쉬는 공간 오브젝트 만들기
             RestZone obj = Instantiate(m_restZonePrefabs, m_parentOfObj.transform).GetComponent<RestZone>();
             m_restZoneList.Add(obj);
-            obj.setFloor(maxFloor+1);
+            obj.setFloor(maxFloor+1, onHitPlayer);
             maxFloor += 2;
         }
         else
@@ -251,6 +292,7 @@ public class singleGameManager : MonoBehaviour
         if (m_bEndGame == false)
             return;
         m_bEndGame = false;
+        moveVerticalOBJ();
     }
 
     public void setGame()
@@ -258,10 +300,11 @@ public class singleGameManager : MonoBehaviour
         if (m_Instance == null)
             m_Instance = this;
         // 세팅
+        m_fCurrentStayTime          = 0;
         m_carmera.pixelRect         = new Rect(0,0,544,768);
         m_fCurrentOnHitCoolTime     = 0;
-        m_nCurMoveLength            = 1;
-        maxFloor                    = 1;
+        m_nCurMoveLength            = 0;
+        maxFloor                    = 0;
         m_nCurCharacterPosX         = 0;
         m_playerCharacterOBJ.transform.localPosition = new Vector3(m_nCurCharacterPosX, 0);
         m_nPlayerHP                 = m_nStartPlayerHP;

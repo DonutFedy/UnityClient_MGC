@@ -166,8 +166,10 @@ public class mainMenuUI : UI
         m_nPrePageNUM = m_nCurPageNUM;
         m_pageNumText.text = m_nCurPageNUM + "";
         m_bisFocuse = false;
-        if(m_bLoadingData == false)
+        if (m_bLoadingData == false)
             startLoadingData();
+        else
+            requestRoomList(m_nCurPageNUM);
     }
 
     #endregion

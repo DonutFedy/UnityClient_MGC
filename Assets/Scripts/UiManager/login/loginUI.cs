@@ -1,6 +1,6 @@
 ﻿#define DEBUGMODE
 
-//#define NOTLOGINSERVER
+#define NOTLOGINSERVER
 
 using System;
 using System.Collections;
@@ -20,6 +20,7 @@ public class loginUI : UI
         SELECT_CHANNEL = 2,
         RESULT_DELETE_USER_UI,
         RESULT_UI,
+        SELECT_GAME_UI,
     }
 
 
@@ -113,6 +114,7 @@ public class loginUI : UI
 
 
 
+
     /// <summary>
     /// 배너 움직이는 코루틴
     /// </summary>
@@ -172,7 +174,7 @@ public class loginUI : UI
                 S_UserAccessData accessData = new S_UserAccessData();
                 accessData.m_accessID = m_idInputfield.text;
                 accessData.m_accessPW = m_pwInputfield.text;
-                GameManager.m_Instance.setUserData(userData, accessData);
+                GameManager.m_Instance.setAccessData(accessData);
                 GameManager.m_Instance.disconnect_loginServer();
                 // openMainMenu
                 openMainMenuUI();
@@ -451,8 +453,12 @@ public class loginUI : UI
     }
 
 
+    public void openSelectGameUI()
+    {
+        openUI((int)INDEX_LOGIN_UI.SELECT_GAME_UI);
+    }
 
-#endregion
+    #endregion
 
 
 

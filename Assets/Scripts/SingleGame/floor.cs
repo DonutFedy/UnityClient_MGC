@@ -8,5 +8,5 @@ public abstract class floor : MonoBehaviour
     public int                      m_nDirection;
     public obstacleOBJ.onHitPlayer  m_func;
 
-    public abstract void moveDown();
+    public abstract void moveDown(float fRate);
 }

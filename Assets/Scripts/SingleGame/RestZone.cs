@@ -67,10 +67,10 @@ public class RestZone : floor
         return m_curFloor - singleGameManager.m_nCurMoveLength;
     }
 
-    public override void moveDown()
+    public override void moveDown(float fRate)
     {
-        gameObject.transform.localPosition = Vector3.up * realFloor();
-        if (realFloor() <= C_obstacleFloor.fLimitDownY)
+        gameObject.transform.localPosition = Vector3.up * (realFloor()-fRate);
+        if (realFloor()- fRate <= C_obstacleFloor.fLimitDownY)
         {
             gameObject.SetActive(false);
         }

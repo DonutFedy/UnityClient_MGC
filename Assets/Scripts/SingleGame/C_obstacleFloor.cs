@@ -12,6 +12,7 @@ public class C_obstacleFloor : floor
     public List<obstacleOBJ> m_list;
     public float        m_fOffsetSpeed;
 
+
     public void setFloor(int nFloor, int nDirection, float fOffsetSpeed, obstacleOBJ.onHitPlayer func)
     {
         m_list = new List<obstacleOBJ>();
@@ -21,6 +22,9 @@ public class C_obstacleFloor : floor
         m_func = func;
     }
 
+    /// <summary>
+    /// 새로운 층으로 세팅되었을때
+    /// </summary>
     public void setObstacleDirection()
     {
         Vector3 pos = new Vector3(0, m_curFloor - singleGameManager.m_nCurMoveLength, 0);
@@ -44,9 +48,14 @@ public class C_obstacleFloor : floor
     }
 
 
-    public override void moveDown()
+    int realFloor()
     {
-        if ((m_curFloor - singleGameManager.m_nCurMoveLength) <= fLimitDownY)
+        return m_curFloor - singleGameManager.m_nCurMoveLength;
+    }
+    public override void moveDown(float fRate)
+    {
+        float curPos = realFloor() - fRate;
+        if (curPos <= fLimitDownY)
         {
             singleGameManager.m_Instance.getNextFloor(ref m_fOffsetSpeed);
             m_curFloor = singleGameManager.maxFloor;
@@ -56,7 +65,7 @@ public class C_obstacleFloor : floor
         }
         for (int i = 0; i < m_list.Count; ++i)
         {
-            m_list[i].moveDown();
+            m_list[i].moveDown(curPos);
         }
     }
     public void moveHor()

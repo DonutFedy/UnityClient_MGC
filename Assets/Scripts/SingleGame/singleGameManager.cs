@@ -51,7 +51,6 @@ public class singleGameManager : MonoBehaviour
     float                   m_curYoffset = 0;
     public float            m_offsetY = 0.15f;
     public float            m_fMoveCoolTime = 0.5f;
-    float                   m_fCurMoveCoolTime = 0;
     int                     m_nCurCharacterPosX = 0;
     float                   m_fOnHitCoolTime = 1f;
     float                   m_fCurrentOnHitCoolTime;
@@ -60,7 +59,10 @@ public class singleGameManager : MonoBehaviour
     public static int       maxFloor;
     [SerializeField]
     public static int       m_nCurMoveLength;
-
+    
+    // move down
+    float                   m_fCurMoveRateY;
+    float                   m_fCurMoveRateX;
 
 
     // obj list
@@ -110,41 +112,35 @@ public class singleGameManager : MonoBehaviour
         if (m_fCurrentOnHitCoolTime > 0)
             m_fCurrentOnHitCoolTime -= Time.deltaTime;
 
-        if (m_fCurMoveCoolTime <= 0)
+        if (m_fCurMoveRateY >= m_fMoveCoolTime*2 && Input.GetKey(KeyCode.UpArrow))
         {
-            if (Input.GetKey(KeyCode.UpArrow))
+            // move down another obj list
+            moveVerticalOBJ();
+            m_fCurrentStayTime = 0;
+        }
+        else if (m_fCurMoveRateY >= m_fMoveCoolTime)
+        {
+            m_fCurMoveRateY += Time.deltaTime;
+        }
+        if (m_fCurMoveRateX >= m_fMoveCoolTime*2)
+        {
+            int direction = 0;
+            if (Input.GetKey(KeyCode.LeftArrow) && m_nCurCharacterPosX > -2)
             {
-                m_curYoffset += m_offsetY;
-                Vector2 offset = new Vector2(0, m_curYoffset);
-
-                m_backgroundScrollMAT.material.mainTextureOffset = offset;
-                m_fCurMoveCoolTime = m_fMoveCoolTime;
-                // move down another obj list
-                moveVerticalOBJ();
+                --direction;
+            }
+            if (Input.GetKey(KeyCode.RightArrow) && m_nCurCharacterPosX < 2)
+            {
+                ++direction;
+            }
+            if (direction != 0)
+            {
+                StartCoroutine(moveHorizontalCharacter(direction));
                 m_fCurrentStayTime = 0;
             }
-            else
-            {
-                int direction = 0;
-                if (Input.GetKey(KeyCode.LeftArrow) && m_nCurCharacterPosX > -2)
-                {
-                    --direction;
-                }
-                if (Input.GetKey(KeyCode.RightArrow) && m_nCurCharacterPosX < 2)
-                {
-                    ++direction;
-                }
-                if (direction != 0)
-                {
-                    m_fCurrentStayTime  = 0;
-                    m_nCurCharacterPosX += direction;
-                    m_fCurMoveCoolTime  = m_fMoveCoolTime;
-                    m_playerCharacterOBJ.transform.localPosition = new Vector3(m_nCurCharacterPosX, 0);
-                }
-            }
         }
-        else
-            m_fCurMoveCoolTime -= Time.deltaTime;
+        else if( m_fCurMoveRateX>=m_fMoveCoolTime)
+            m_fCurMoveRateX += Time.deltaTime;
 
         if (m_fCurrentStayTime >= m_fLimitStayTime)
         {
@@ -185,25 +181,71 @@ public class singleGameManager : MonoBehaviour
             if ((m_objList[i].m_curFloor - m_nCurMoveLength) >= C_obstacleFloor.fLimitUpY)
                 continue;
             m_objList[i].moveHor();
-
         }
     }
 
-    void moveVerticalOBJ()
+    IEnumerator moveHorizontalCharacter(int direction)
     {
+        m_fCurMoveRateX = 0;
+        while (m_fCurMoveRateX<m_fMoveCoolTime)
+        {
+            m_fCurMoveRateX += Time.deltaTime;
+
+            m_playerCharacterOBJ.transform.localPosition = new Vector3(m_nCurCharacterPosX + direction * m_fCurMoveRateX/m_fMoveCoolTime, 0);
+
+
+            yield return null;
+        }
+        m_nCurCharacterPosX += direction;
+        m_playerCharacterOBJ.transform.localPosition = new Vector3(m_nCurCharacterPosX, 0);
+
+        m_fCurMoveRateX = m_fMoveCoolTime;
+    }
+
+    IEnumerator moveDownOBJ()
+    {
+        Vector2 offset = new Vector2(0, m_curYoffset);
+
+        // 올라가기전
         RestZone restZone = getCurrentRestZone();
         if (restZone != null)
             restZone.disableFlag();
-        ++m_nCurMoveLength;
-        restZone = getCurrentRestZone();
-        if (restZone != null)
-            restZone.onFlag();
-        m_funcList[(int)FUNC_TYPE.UP_FLOOR](m_nCurMoveLength);
-        for (int i = 0; i < m_objList.Count; ++i)
-            m_objList[i].moveDown();
-        for(int i = 0; i < m_restZoneList.Count;++i)
+
+        m_fCurMoveRateY = 0;
+        while (m_fCurMoveRateY < m_fMoveCoolTime)
         {
-            m_restZoneList[i].moveDown();
+            m_fCurMoveRateY += Time.deltaTime;
+
+            // 올라가기 ...
+            offset.y = m_curYoffset + m_fCurMoveRateY / m_fMoveCoolTime* m_offsetY;
+            m_backgroundScrollMAT.material.mainTextureOffset = offset; // 배경 업데이트
+            for (int i = 0; i < m_objList.Count; ++i) // 장애물 업데이트
+                m_objList[i].moveDown(m_fCurMoveRateY / m_fMoveCoolTime);
+            for (int i = 0; i < m_restZoneList.Count; ++i) // 휴식 지역 업데이트
+            {
+                m_restZoneList[i].moveDown(m_fCurMoveRateY / m_fMoveCoolTime);
+                if (m_restZoneList[i].gameObject.activeSelf == false)
+                {
+                    DestroyImmediate(m_restZoneList[i].gameObject);
+                    m_restZoneList.RemoveAt(i);
+                    --i;
+                }
+            }
+
+            yield return null;
+        }
+        // 실제 다 올라갔을때
+
+        m_curYoffset += m_offsetY;
+        offset.y = m_curYoffset;
+        m_backgroundScrollMAT.material.mainTextureOffset = offset;
+
+
+        for (int i = 0; i < m_objList.Count; ++i) // 장애물 업데이트
+            m_objList[i].moveDown(1);
+        for (int i = 0; i < m_restZoneList.Count; ++i) // 휴식 지역 업데이트
+        {
+            m_restZoneList[i].moveDown(1);
             if (m_restZoneList[i].gameObject.activeSelf == false)
             {
                 DestroyImmediate(m_restZoneList[i].gameObject);
@@ -211,6 +253,21 @@ public class singleGameManager : MonoBehaviour
                 --i;
             }
         }
+        ++m_nCurMoveLength;
+
+        restZone = getCurrentRestZone();
+        if (restZone != null)
+            restZone.onFlag();
+        m_funcList[(int)FUNC_TYPE.UP_FLOOR](m_nCurMoveLength);
+
+
+        m_fCurMoveRateY = m_fMoveCoolTime;
+    }
+
+
+    void moveVerticalOBJ()
+    {
+        StartCoroutine(moveDownOBJ());
     }
 
     float getStayTimeRate()
@@ -306,6 +363,8 @@ public class singleGameManager : MonoBehaviour
         m_nCurMoveLength            = 0;
         maxFloor                    = 0;
         m_nCurCharacterPosX         = 0;
+        m_fCurMoveRateY              = m_fMoveCoolTime*2;
+        m_fCurMoveRateX              = m_fMoveCoolTime*2;
         m_playerCharacterOBJ.transform.localPosition = new Vector3(m_nCurCharacterPosX, 0);
         m_nPlayerHP                 = m_nStartPlayerHP;
         m_bEndGame = true;

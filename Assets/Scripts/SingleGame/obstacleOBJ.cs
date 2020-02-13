@@ -71,9 +71,11 @@ public class obstacleOBJ : MonoBehaviour
         m_fSpeed = Random.Range(1, 3+ m_fOffsetSpeed);
     }
 
-    public float moveDown()
+    public float moveDown(float pos)
     {
-        gameObject.transform.localPosition -= Vector3.up;
+        Vector3 curPos = gameObject.transform.localPosition;
+        curPos.y = pos;
+        gameObject.transform.localPosition = curPos;
         return transform.localPosition.y;
     }
     public float getY()

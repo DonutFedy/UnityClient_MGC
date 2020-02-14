@@ -905,6 +905,58 @@ namespace PACKET
         }
     }
 
+    public class C_SocialPacketFriendListRequest : C_BaseSocialPacket
+    {
+        public C_SocialPacketFriendListRequest()
+        {
+            setType(SocialPacketType.packetTypeSocialFriendListRequest);
+            m_bResponse = false;
+        }
+        public override void deserialize(C_Buffer buf)
+        {
+        }
+
+        public override C_Buffer serialize()
+        {
+            C_Buffer buf = new C_Buffer();
+            buf.set((byte)m_basicType);
+            buf.set((byte)m_socialType);
+            return buf;
+        }
+    }
+    public class C_SocialPacketFriendListResponse : C_BaseSocialPacket
+    {
+        public Int16            m_size;
+        public List<string>     m_friends = new List<string>();
+        public C_SocialPacketFriendListResponse()
+        {
+            setType(SocialPacketType.packetTypeSocialFriendListResponse);
+            m_bResponse = true;
+        }
+        public override void deserialize(C_Buffer buf)
+        {
+            buf.get(ref m_size);
+
+            string curName = "";
+            for(int i = 0; i < m_size; ++i)
+            {
+                buf.get(ref curName);
+                m_friends.Add(curName);
+            }
+        }
+
+        public override C_Buffer serialize()
+        {
+            C_Buffer buf = new C_Buffer();
+            buf.set((byte)m_basicType);
+            buf.set((byte)m_socialType);
+            buf.set(m_size);
+            foreach (string friendName in m_friends)
+                buf.set(friendName);
+            return buf;
+        }
+    }
+
 
     #endregion
     public class C_Anomaly : C_BasePacket

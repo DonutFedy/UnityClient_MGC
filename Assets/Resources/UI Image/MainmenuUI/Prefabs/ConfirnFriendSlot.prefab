@@ -244,7 +244,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2921606509608045970}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 4389056185929238508}
+        m_MethodName: onClickPermissionBTN
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &2921606509711455279
 GameObject:
   m_ObjectHideFlags: 0
@@ -510,7 +521,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2921606510131909160}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 4389056185929238508}
+        m_MethodName: onClickRefusalBTN
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &2921606510694342416
 GameObject:
   m_ObjectHideFlags: 0

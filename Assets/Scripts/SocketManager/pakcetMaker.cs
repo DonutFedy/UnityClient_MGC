@@ -474,6 +474,7 @@ namespace PACKET
                     packet = new C_SocialPacketAcceptFriendResponse();
                     break;
                 case SocialPacketType.packetTypeSocialFriendListResponse:
+                    packet = new C_SocialPacketFriendListResponse();
                     break;
                 case SocialPacketType.packetTypeSocialCount:
                     break;

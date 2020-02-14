@@ -87,6 +87,7 @@ public class loadingUI : UI
 
     IEnumerator loadingData()
     {
+        m_fCurLoadingState = 0;
         m_fCurLoadingTime = 0.2f;
         int nCurImageIndex = -1;
         Color nowColor = Color.white;

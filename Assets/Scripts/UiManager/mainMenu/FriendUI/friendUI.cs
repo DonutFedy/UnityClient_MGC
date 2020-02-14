@@ -54,6 +54,8 @@ public class friendUI : UI
     [SerializeField]
     RectTransform           m_parentOfConfirnFriendList;
     [SerializeField]
+    int                     m_confirnSlotSizeOffsetY;
+    [SerializeField]
     GameObject              m_confirnSlotPrefabs;
     [SerializeField]
     List<confirnFriendSlot> m_confirnSlotList = new List<confirnFriendSlot>();
@@ -160,7 +162,7 @@ public class friendUI : UI
         m_ParentOfFriendList.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 10 + m_SlotSizeOffsetY * m_FriendList.Count);
     }
 
-    void makeFriendSlot(object info)
+    void makeFriendSlot(S_FriendInfo info)
     {
         friendSlot newSlot = (Instantiate(m_FriendSlotPrefab,
             m_ParentOfFriendList).GetComponent<friendSlot>());  // slot 생성
@@ -186,6 +188,14 @@ public class friendUI : UI
         }
     }
 
+    void removeConfirnFriendSlot(string destName)
+    {
+        int nTargetIndex = m_confirnSlotList.FindIndex(x => x.getSlotDestName() == destName);
+        if (nTargetIndex == -1) return;
+        DestroyImmediate(m_confirnSlotList[nTargetIndex].gameObject);
+        m_confirnSlotList.RemoveAt(nTargetIndex);
+    }
+
     #endregion
 
     #region Server REQ / RES
@@ -201,14 +211,15 @@ public class friendUI : UI
         {
             // 해당 슬롯 삭제
             int nSlotIndex = m_confirnSlotList.FindIndex(x => x.getSlotDestName() == destName);
-            if(nSlotIndex>=0)
+            startWaiting(responseAcceptFriendResponse);
+            if (nSlotIndex>=0)
                 m_confirnSlotList.RemoveAt(nSlotIndex);
-            data.m_bResponse = false;
+            data.m_bResponse = true;
         }
         else
         {
-            startWaiting(responseAcceptFriendResponse);
-            data.m_bResponse = true;
+            data.m_bResponse = false;
+            removeConfirnFriendSlot(destName);
         }
         GameManager.m_Instance.makePacket(data);
     }
@@ -219,7 +230,7 @@ public class friendUI : UI
         C_BaseSocialPacket data = (C_BaseSocialPacket)eventData;
         if (data.m_socialType != SocialPacketType.packetTypeSocialAcceptFriendResponse) return;
         C_SocialPacketAcceptFriendResponse curData = (C_SocialPacketAcceptFriendResponse)data;
-
+        stopWaiting();
         Debug.Log("수락 응답 처리");
     }
 
@@ -250,10 +261,14 @@ public class friendUI : UI
                 slot.setSlot(curData.m_names[i], AcceptFriendRequest);
                 m_confirnSlotList.Add(slot);
             }
+            m_parentOfConfirnFriendList.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 
+                10 + m_confirnSlotSizeOffsetY * m_confirnSlotList.Count);
             m_newConfirnFriendICON.SetActive(true);
         }
         else
         {
+            m_parentOfConfirnFriendList.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,
+                10);
             m_newConfirnFriendICON.SetActive(false);
             // 요청이 없습니다.Text
             m_emptyConfirnFriendText.SetActive(true);
@@ -265,9 +280,8 @@ public class friendUI : UI
     {
         m_PlzAddFriendText.SetActive(true);
         //// 서버에 유저의 친구 리스트 req
-        //eventData data = new friendListRequest();
-        //data.deserialize(null);
-        //GameManager.m_Instance.makePacket(data);
+        C_SocialPacketFriendListRequest data = new C_SocialPacketFriendListRequest();
+        GameManager.m_Instance.makePacket(data);
     }
 
     /// <summary>
@@ -278,25 +292,20 @@ public class friendUI : UI
     {
         C_BaseSocialPacket data = (C_BaseSocialPacket)curEventData;
         if (data.m_socialType != SocialPacketType.packetTypeSocialFriendListResponse) return;
+        C_SocialPacketFriendListResponse curData = (C_SocialPacketFriendListResponse)data;
 
-
-        if (true)    // 성공 recv 시 리스트 추가
+        if (curData.m_size>0)    
         {
             m_PlzAddFriendText.SetActive(false);
-            for (int i = 0; i < 5; ++i)                                     // 일단, 임시로 5명의 친구를 추가
+            for (int i = 0; i < curData.m_size; ++i)                                     // 일단, 임시로 5명의 친구를 추가
             {
-                //S_FRIEND_INFO newInfo = new S_FRIEND_INFO();            // info 객체 생성
-                //newInfo.m_nickname = "TestNickname_" + i;
-                //makeFriendSlot(newInfo);                                // 객체 생성
+                S_FriendInfo newInfo = new S_FriendInfo();            // info 객체 생성
+                newInfo.m_nickName = curData.m_friends[i];
+                makeFriendSlot(newInfo);                                // 객체 생성
             }
             // recttransform resizing
             m_ParentOfFriendList.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 10 + m_SlotSizeOffsetY * m_FriendList.Count);
         }
-        else
-        {
-            // 실패 recv 시 plzAddFriendText setActive(true)
-        }
-
     }
 
     void requestDeleteFriend(string userNickname)
@@ -454,6 +463,7 @@ public class friendUI : UI
 
     public void openListZone()
     {
+        m_newConfirnFriendICON.SetActive(false);
         m_SearchZoneOBJ.SetActive(false);
         m_ListZoneOBJ.SetActive(true);
 

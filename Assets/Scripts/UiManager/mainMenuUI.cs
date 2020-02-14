@@ -51,6 +51,7 @@ public class mainMenuUI : UI
     #region Basic UI
     public override void initUI(UI manager, int uiType)
     {
+        m_bLoadingData = false;
         base.initUI(manager, uiType);
         // 기본 세팅
         ((guildUI)m_uiList[(int)INDEX_MAINMENU_UI.GUILD_UI]).m_dWhisper = setWhisper;   //귓속말 함수 연결
@@ -63,7 +64,6 @@ public class mainMenuUI : UI
 
     protected override void setUI()
     {
-        m_bLoadingData  = false;
         setLobby();
         m_chatBox.setChatBox();
     }
@@ -208,6 +208,7 @@ public class mainMenuUI : UI
     public void logout()
     {
         m_uiManager.closeUI(1);
+        m_bLoadingData = false;
 
         GameManager.m_Instance.setLoginState(false);
         try
@@ -363,6 +364,7 @@ public class mainMenuUI : UI
         clearRoomList();
         // 방리스트 요청
         requestRoomList(m_nCurPageNUM);
+       
     }
 
     /// <summary>

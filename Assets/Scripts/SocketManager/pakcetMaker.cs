@@ -87,6 +87,17 @@ namespace PACKET
             }
             return this;
         }
+        public C_Buffer set(UInt32 rhs)
+        {
+            byte[] data = BitConverter.GetBytes(rhs);
+            for (int i = 0; i < data.Length; ++i)
+            {
+                m_buf[m_index] = data[i];
+                ++m_index;
+                ++m_length;
+            }
+            return this;
+        }
         public C_Buffer set(Int64 rhs)
         {
             byte[] data = BitConverter.GetBytes(rhs);
@@ -112,12 +123,19 @@ namespace PACKET
         //string
         public C_Buffer set(string rhs)
         {
-            //byte[] data = Encoding.UTF8.GetBytes(rhs);
+            /*
+            byte[] data = Encoding.UTF8.GetBytes(rhs);
+            for (int i = 0; i < data.Length; ++i)
+            {
+                m_buf[m_index] = data[i];
+                ++m_index;
+                ++m_length;
+            }
+            */
             char[] data = rhs.ToCharArray();
             for (int i = 0; i < data.Length; ++i)
             {
                 m_buf[m_index] = (byte)data[i];
-                //m_buf[m_index] = data[i];
                 ++m_index;
                 ++m_length;
             }
@@ -146,6 +164,21 @@ namespace PACKET
             ++m_length;
             return this;
         }
+        public C_Buffer set(ErrorTypeAddFriend rhs)
+        {
+            m_buf[m_index] = System.Convert.ToByte(rhs);
+            ++m_index;
+            ++m_length;
+            return this;
+        }
+        public C_Buffer set(ErrorTypeAcceptFriend rhs)
+        {
+            m_buf[m_index] = System.Convert.ToByte(rhs);
+            ++m_index;
+            ++m_length;
+            return this;
+        }
+
 
 
         #endregion
@@ -171,11 +204,24 @@ namespace PACKET
         {
             if (m_length <= m_index)
                 return this;
+            
             while ('\n' != m_buf[m_index])
             {
                 str += (char)m_buf[m_index];
                 ++m_index;
             }
+            
+            /*
+            byte[] curByte = new byte[BUFSIZE];
+            int curIndex = 0;
+            while ('\n' != m_buf[m_index])
+            {
+                curByte[curIndex] = m_buf[m_index];
+                ++m_index;
+                ++curIndex;
+            }
+            str = Encoding.UTF8.GetString(curByte);
+            */
             //int nMax = m_index;
             //while ('\n' != m_buf[nMax])
             //{
@@ -204,6 +250,15 @@ namespace PACKET
             m_index += sizeof(Int32);
             return this;
         }
+        public C_Buffer get(ref UInt32 nInt)
+        {
+            if (m_length <= m_index)
+                return this;
+            nInt = 0;
+            nInt = BitConverter.ToUInt32(m_buf, m_index);
+            m_index += sizeof(UInt32);
+            return this;
+        }
         public C_Buffer get(ref Int64 nInt)
         {
             if (m_length <= m_index)
@@ -222,7 +277,22 @@ namespace PACKET
             ++m_index;
             return this;
         }
-
+        public C_Buffer get(ref ErrorTypeAddFriend m_errorType)
+        {
+            if (m_length <= m_index)
+                return this;
+            m_errorType = (ErrorTypeAddFriend)m_buf[m_index];
+            ++m_index;
+            return this;
+        }
+        public C_Buffer get(ref ErrorTypeAcceptFriend m_errorType)
+        {
+            if (m_length <= m_index)
+                return this;
+            m_errorType = (ErrorTypeAcceptFriend)m_buf[m_index];
+            ++m_index;
+            return this;
+        }
 
 
 
@@ -382,16 +452,28 @@ namespace PACKET
 
             byte type = 0;
             buf.get(ref type);
+
             switch ((SocialPacketType)type)
             {
                 case SocialPacketType.packetTypeSocialNone:
                     break;
                 case SocialPacketType.packetTypeSocialChatNormalResponse:
-                    packet = new C_SocialPacketChatRornalResponse();
+                    packet = new C_SocialPacketChatNormalResponse();
                     break;
                 case SocialPacketType.packetTypeSocialChatFriendResponse:
                     break;
                 case SocialPacketType.packetTypeSocialChatGuildResponse:
+                    break;
+                case SocialPacketType.packetTypeSocialAddFriendResponse:
+                    packet = new C_SocialPacketAddFriendResponse();
+                    break;
+                case SocialPacketType.packetTypeSocialConfirmFriendResponse:
+                    packet = new C_SocialPacketConfirmFriendResponse();
+                    break;
+                case SocialPacketType.packetTypeSocialAcceptFriendResponse:
+                    packet = new C_SocialPacketAcceptFriendResponse();
+                    break;
+                case SocialPacketType.packetTypeSocialFriendListResponse:
                     break;
                 case SocialPacketType.packetTypeSocialCount:
                     break;

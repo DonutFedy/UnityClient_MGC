@@ -52,6 +52,7 @@ public abstract class UI : MonoBehaviour
         m_bWaiting = true;
         if (m_waitingUI)
         {
+            m_waitingUI.m_clearWaitingFUNC = isWaiting;
             m_waitingUI.m_overTimeFunc = null;
             m_waitingUI.m_overTimeFunc = stopWaiting;
             m_waitingUI.gameObject.SetActive(true);
@@ -65,6 +66,10 @@ public abstract class UI : MonoBehaviour
             m_waitingUI.gameObject.SetActive(false);
     }
 
+    bool isWaiting()
+    {
+        return m_bWaiting;
+    }
 
     public void stopWaitingUI()
     {

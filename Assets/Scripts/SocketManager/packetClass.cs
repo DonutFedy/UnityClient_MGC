@@ -711,9 +711,9 @@ namespace PACKET
         }
     }
 
-    public class C_SocialPacketChatRornalRequest : C_BaseSocialPacket {
+    public class C_SocialPacketChatNormalRequest : C_BaseSocialPacket {
         public string               m_message;
-        public C_SocialPacketChatRornalRequest()
+        public C_SocialPacketChatNormalRequest()
         {
             setType(SocialPacketType.packetTypeSocialChatNormalRequest);
             m_bResponse = false;
@@ -732,11 +732,11 @@ namespace PACKET
             return buf;
         }
     }
-    public class C_SocialPacketChatRornalResponse : C_BaseSocialPacket
+    public class C_SocialPacketChatNormalResponse : C_BaseSocialPacket
     {
         public string       m_nickname;
         public string       m_message;
-        public C_SocialPacketChatRornalResponse()
+        public C_SocialPacketChatNormalResponse()
         {
             setType(SocialPacketType.packetTypeSocialChatNormalResponse);
             m_bResponse = true;
@@ -754,6 +754,153 @@ namespace PACKET
             buf.set((byte)m_socialType);
             buf.set(m_nickname);
             buf.set(m_message);
+            return buf;
+        }
+    }
+    public class C_SocialPacketAddFriendRequest : C_BaseSocialPacket
+    {
+        public string           m_destName;
+        public C_SocialPacketAddFriendRequest()
+        {
+            setType(SocialPacketType.packetTypeSocialAddFriendRequest);
+            m_bResponse = false;
+        }
+        public override void deserialize(C_Buffer buf)
+        {
+            buf.get(ref m_destName);
+        }
+
+        public override C_Buffer serialize()
+        {
+            C_Buffer buf = new C_Buffer();
+            buf.set((byte)m_basicType);
+            buf.set((byte)m_socialType);
+            buf.set(m_destName);
+            return buf;
+        }
+    }
+    public class C_SocialPacketAddFriendResponse : C_BaseSocialPacket
+    {
+        public bool                     m_success = false;
+        public ErrorTypeAddFriend       m_errorCode = ErrorTypeAddFriend.none;
+        public C_SocialPacketAddFriendResponse()
+        {
+            setType(SocialPacketType.packetTypeSocialAddFriendResponse);
+            m_bResponse = true;
+        }
+        public override void deserialize(C_Buffer buf)
+        {
+            buf.get(ref m_success);
+            buf.get(ref m_errorCode);
+        }
+
+        public override C_Buffer serialize()
+        {
+            C_Buffer buf = new C_Buffer();
+            buf.set((byte)m_basicType);
+            buf.set((byte)m_socialType);
+            buf.set(m_success);
+            buf.set(m_errorCode);
+            return buf;
+        }
+    }
+    public class C_SocialPacketConfirmFriendRequest : C_BaseSocialPacket
+    {
+        public C_SocialPacketConfirmFriendRequest()
+        {
+            setType(SocialPacketType.packetTypeSocialConfirmFriendRequest);
+            m_bResponse = false;
+        }
+        public override void deserialize(C_Buffer buf)
+        {
+        }
+
+        public override C_Buffer serialize()
+        {
+            C_Buffer buf = new C_Buffer();
+            buf.set((byte)m_basicType);
+            buf.set((byte)m_socialType);
+            return buf;
+        }
+    }
+    public class C_SocialPacketConfirmFriendResponse : C_BaseSocialPacket
+    {
+        public Int16            m_size;
+        public List<string>     m_names = new List<string>();
+
+        public C_SocialPacketConfirmFriendResponse()
+        {
+            setType(SocialPacketType.packetTypeSocialConfirmFriendResponse);
+            m_bResponse = true;
+        }
+        public override void deserialize(C_Buffer buf)
+        {
+            buf.get(ref m_size);
+            string curName = "";
+            for(int i = 0; i < m_size; ++i)
+            {
+                buf.get(ref curName);
+                m_names.Add(curName);
+            }
+        }
+
+        public override C_Buffer serialize()
+        {
+            C_Buffer buf = new C_Buffer();
+            buf.set((byte)m_basicType);
+            buf.set((byte)m_socialType);
+            buf.set(m_size);
+            foreach (string name in m_names)
+                buf.set(name);
+            return buf;
+        }
+    }
+
+    public class C_SocialPacketAcceptFriendRequest : C_BaseSocialPacket
+    {
+        public bool             m_isAccept = false;
+        public string           m_destName;
+        public C_SocialPacketAcceptFriendRequest()
+        {
+            setType(SocialPacketType.packetTypeSocialAcceptFriendRequest);
+            m_bResponse = false;
+        }
+        public override void deserialize(C_Buffer buf)
+        {
+            buf.get(ref m_isAccept);
+            buf.get(ref m_destName);
+        }
+
+        public override C_Buffer serialize()
+        {
+            C_Buffer buf = new C_Buffer();
+            buf.set((byte)m_basicType);
+            buf.set((byte)m_socialType);
+            buf.set(m_isAccept);
+            buf.set(m_destName);
+            return buf;
+        }
+    }
+    public class C_SocialPacketAcceptFriendResponse : C_BaseSocialPacket
+    {
+        public ErrorTypeAcceptFriend m_errorCode = ErrorTypeAcceptFriend.none;
+
+        public C_SocialPacketAcceptFriendResponse()
+        {
+            setType(SocialPacketType.packetTypeSocialAcceptFriendResponse);
+            m_bResponse = true;
+        }
+        public override void deserialize(C_Buffer buf)
+        {
+            buf.get(ref m_errorCode);
+        }
+
+        public override C_Buffer serialize()
+        {
+            C_Buffer buf = new C_Buffer();
+            buf.set((byte)m_basicType);
+            buf.set((byte)m_socialType);
+            buf.set(m_errorCode);
             return buf;
         }
     }

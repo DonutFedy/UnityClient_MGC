@@ -43,9 +43,24 @@ public class friendUI : UI
     [SerializeField]
     Text                    m_TargetUserInfoText;
     bool                    m_bSuccessSearch;
-    //S_FRIEND_INFO           m_TargetUserInfo;
+    string                  m_DestUserNickname;
     #endregion
 
+    #region ConfirmFriend
+    string                  m_destUserNickname;
+
+    [SerializeField]
+    GameObject              m_emptyConfirnFriendText;
+    [SerializeField]
+    RectTransform           m_parentOfConfirnFriendList;
+    [SerializeField]
+    GameObject              m_confirnSlotPrefabs;
+    [SerializeField]
+    List<confirnFriendSlot> m_confirnSlotList = new List<confirnFriendSlot>();
+    [SerializeField]
+    GameObject              m_newConfirnFriendICON;
+
+    #endregion
 
 
 
@@ -62,6 +77,11 @@ public class friendUI : UI
             return;
         else if (m_listener != null)
             m_listener(eventData);
+        if(eventData.m_basicType == BasePacketType.basePacketTypeSocial)
+        {
+            responseFriendList(eventData);
+            responseConfirmFriend(eventData);
+        }
     }
 
     public override void releaseUI()
@@ -154,17 +174,96 @@ public class friendUI : UI
         m_bSuccessSearch = false;
         m_TargetUserNicknameIF.text = "";        // clear IF
         m_TargetUserInfoText.text = "";             // clear target User Info
+
     }
 
+    void clearConfirnFriendSlot() // 친구 요청 슬롯 초기화
+    {
+        while (m_confirnSlotList.Count > 0)
+        {
+            DestroyImmediate(m_confirnSlotList[0].gameObject);
+            m_confirnSlotList.RemoveAt(0);
+        }
+    }
 
     #endregion
 
     #region Server REQ / RES
 
+    /// <summary>
+    /// 친구 요청에 대한 응답
+    /// </summary>
+    void AcceptFriendRequest(string destName, bool bPermission)
+    {
+        C_SocialPacketAcceptFriendRequest data = new C_SocialPacketAcceptFriendRequest();
+        data.m_destName = destName;
+        if (bPermission)
+        {
+            // 해당 슬롯 삭제
+            int nSlotIndex = m_confirnSlotList.FindIndex(x => x.getSlotDestName() == destName);
+            if(nSlotIndex>=0)
+                m_confirnSlotList.RemoveAt(nSlotIndex);
+            data.m_bResponse = false;
+        }
+        else
+        {
+            startWaiting(responseAcceptFriendResponse);
+            data.m_bResponse = true;
+        }
+        GameManager.m_Instance.makePacket(data);
+    }
+
+    void responseAcceptFriendResponse(C_BasePacket eventData)
+    {
+        if (eventData.m_basicType != BasePacketType.basePacketTypeSocial)return;
+        C_BaseSocialPacket data = (C_BaseSocialPacket)eventData;
+        if (data.m_socialType != SocialPacketType.packetTypeSocialAcceptFriendResponse) return;
+        C_SocialPacketAcceptFriendResponse curData = (C_SocialPacketAcceptFriendResponse)data;
+
+        Debug.Log("수락 응답 처리");
+    }
+
+
+    void requestConfirmFriend()
+    {
+        C_SocialPacketConfirmFriendRequest data = new C_SocialPacketConfirmFriendRequest();
+        GameManager.m_Instance.makePacket(data);
+    }
+
+
+    void responseConfirmFriend(C_BasePacket eventData)
+    {
+        C_BaseSocialPacket data = (C_BaseSocialPacket)eventData;
+        if (data.m_socialType != SocialPacketType.packetTypeSocialConfirmFriendResponse) return;
+
+        C_SocialPacketConfirmFriendResponse curData = (C_SocialPacketConfirmFriendResponse)data;
+
+        if(curData.m_size > 0)
+        {
+            m_emptyConfirnFriendText.SetActive(false);
+            m_parentOfConfirnFriendList.gameObject.SetActive(true);
+
+            // list make
+            for(int i = 0; i < curData.m_size; ++i)
+            {
+                confirnFriendSlot slot = Instantiate(m_confirnSlotPrefabs, m_parentOfConfirnFriendList).GetComponent<confirnFriendSlot>();
+                slot.setSlot(curData.m_names[i], AcceptFriendRequest);
+                m_confirnSlotList.Add(slot);
+            }
+            m_newConfirnFriendICON.SetActive(true);
+        }
+        else
+        {
+            m_newConfirnFriendICON.SetActive(false);
+            // 요청이 없습니다.Text
+            m_emptyConfirnFriendText.SetActive(true);
+            m_parentOfConfirnFriendList.gameObject.SetActive(false);
+        }
+    }
+
     void requestFriendList()
     {
-        responseFriendList(null);
-        //startWaiting(responseFriendList);
+        m_PlzAddFriendText.SetActive(true);
         //// 서버에 유저의 친구 리스트 req
         //eventData data = new friendListRequest();
         //data.deserialize(null);
@@ -177,11 +276,9 @@ public class friendUI : UI
     /// <param name="curEventData"></param>
     void responseFriendList(C_BasePacket curEventData)
     {
-        //stopWaiting();
-        //socialData curSocialData = (socialData)curEventData;
-        //if (curSocialData.m_type != SOCIAL_TYPE.FRIEND_LIST_RESPONSE) return; // 현재 이벤트에 맞는 타입이 아니면 return
+        C_BaseSocialPacket data = (C_BaseSocialPacket)curEventData;
+        if (data.m_socialType != SocialPacketType.packetTypeSocialFriendListResponse) return;
 
-        //friendListResponse data = (friendListResponse)curSocialData; // 실제 데이터
 
         if (true)    // 성공 recv 시 리스트 추가
         {
@@ -198,7 +295,6 @@ public class friendUI : UI
         else
         {
             // 실패 recv 시 plzAddFriendText setActive(true)
-            m_PlzAddFriendText.SetActive(true);
         }
 
     }
@@ -250,80 +346,96 @@ public class friendUI : UI
     /// <summary>
     /// 유저 검색 try
     /// </summary>
-    public void requestSearchFriend()
-    {
-        responseSearchFriend(null);
-        return;
-        // user nickname text check
-        if (m_TargetUserNicknameIF.text.Length <= 0)
-            return;
+    //public void requestSearchFriend()
+    //{
+    //    responseSearchFriend(null);
+    //    return;
+    //    // user nickname text check
+    //    if (m_TargetUserNicknameIF.text.Length <= 0)
+    //        return;
 
-        startWaiting(responseSearchFriend);
-        // 서버에 전송
-        //eventData data = new searchFriendRequest();
-        //S_FRIEND_INFO info = new S_FRIEND_INFO();
-        //info.m_nickname = m_TargetUserNicknameIF.text;
-        //data.deserialize(info);
-        //GameManager.m_Instance.makePacket(data);
-    }
-    void responseSearchFriend(C_BasePacket curEventData)
-    {
-        //stopWaiting();
-        //socialData curSocialData = (socialData)curEventData;
-        //if (curSocialData.m_type != SOCIAL_TYPE.SEARCH_FRIEND_RESPONSE) return; // 현재 이벤트에 맞는 타입이 아니면 return
+    //    startWaiting(responseSearchFriend);
+    //    // 서버에 전송
+    //    //eventData data = new searchFriendRequest();
+    //    //S_FRIEND_INFO info = new S_FRIEND_INFO();
+    //    //info.m_nickname = m_TargetUserNicknameIF.text;
+    //    //data.deserialize(info);
+    //    //GameManager.m_Instance.makePacket(data);
+    //}
+    //void responseSearchFriend(C_BasePacket curEventData)
+    //{
+    //    //stopWaiting();
+    //    //socialData curSocialData = (socialData)curEventData;
+    //    //if (curSocialData.m_type != SOCIAL_TYPE.SEARCH_FRIEND_RESPONSE) return; // 현재 이벤트에 맞는 타입이 아니면 return
 
-        //searchFriendResponse data = (searchFriendResponse)curSocialData; // 실제 데이터
+    //    //searchFriendResponse data = (searchFriendResponse)curSocialData; // 실제 데이터
 
-        if (false)
-        {
-            // 검색된 유저 데이터 저장
-            //m_TargetUserInfo = (S_FRIEND_INFO)data.m_eventData;
-            // info text에 검색된 유저 데이터 저장
-            //m_TargetUserInfoText.text = "대충 " + m_TargetUserInfo.m_nickname + "이라는 유저의 데이터";
-            m_bSuccessSearch = true;
-        }
-        else    // data 가 null 이면 실패.
-        {
-            ((ResultUI)m_uiList[(int)INDEX_OF_FRIEND_UI.RESULT_UI]).setResultMSG("존재 하지 않는 유저입니다.");  // 실패 recv 시 실패 팝업 return
-            openUI((int)INDEX_OF_FRIEND_UI.RESULT_UI);
-        }
-        m_TargetUserNicknameIF.text = "";
-    }
+    //    if (false)
+    //    {
+    //        // 검색된 유저 데이터 저장
+    //        //m_TargetUserInfo = (S_FRIEND_INFO)data.m_eventData;
+    //        // info text에 검색된 유저 데이터 저장
+    //        //m_TargetUserInfoText.text = "대충 " + m_TargetUserInfo.m_nickname + "이라는 유저의 데이터";
+    //        m_bSuccessSearch = true;
+    //    }
+    //    else    // data 가 null 이면 실패.
+    //    {
+    //        ((ResultUI)m_uiList[(int)INDEX_OF_FRIEND_UI.RESULT_UI]).setResultMSG("존재 하지 않는 유저입니다.");  // 실패 recv 시 실패 팝업 return
+    //        openUI((int)INDEX_OF_FRIEND_UI.RESULT_UI);
+    //    }
+    //    m_TargetUserNicknameIF.text = "";
+    //}
 
     public void requestAddFriend()
     {
-        responseAddFriend(null);
-        //if (m_bSuccessSearch == false)  // 현재 검색된 유저가 없으면 return
-        //    return;
-        
+        if (m_TargetUserNicknameIF.text.Length <= 0) return;
 
-        //startWaiting(responseAddFriend);
-        //// 현재 검색된 유저의 데이터 동봉해서 서버에 req
-        //eventData data = new addFriendRequest();
-        //data.deserialize(null);
-        //GameManager.m_Instance.makePacket(data);
+        startWaiting(responseAddFriend);
+        C_SocialPacketAddFriendRequest data = new C_SocialPacketAddFriendRequest();
+        data.m_destName = m_TargetUserNicknameIF.text;
+        GameManager.m_Instance.makePacket(data);
     }
 
     void responseAddFriend(C_BasePacket curEventData)
     {
-        //stopWaiting();
-        //socialData curSocialData = (socialData)curEventData;
-        //if (curSocialData.m_type != SOCIAL_TYPE.ADD_FRIEND_RESPONSE) return; // 현재 이벤트에 맞는 타입이 아니면 return
+        C_BaseSocialPacket data = (C_BaseSocialPacket)curEventData;
+        if (data.m_socialType != SocialPacketType.packetTypeSocialAddFriendResponse) return;
 
-        //addFriendResponse data = (addFriendResponse)curSocialData; // 실제 데이터
+        C_SocialPacketAddFriendResponse curData = (C_SocialPacketAddFriendResponse)data;
+        stopWaiting();
 
-        if (true)   // 현재는 무조건 생성
+        if (curData.m_success) // 신청 성공
         {
-            //makeFriendSlot(m_TargetUserInfo);                       // 생성
-            // recttransform resizing
-            m_ParentOfFriendList.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 10 + m_SlotSizeOffsetY * m_FriendList.Count);
             clearSearchZone();
-            ((ResultUI)m_uiList[(int)INDEX_OF_FRIEND_UI.RESULT_UI]).setResultMSG("친구 추가 성공!");
+            ((ResultUI)m_uiList[(int)INDEX_OF_FRIEND_UI.RESULT_UI]).setResultMSG("친구 추가 신청 완료!");
             openUI((int)INDEX_OF_FRIEND_UI.RESULT_UI);
         }
         else        // 실패 recv 시 실패 팝업
         {
-            ((ResultUI)m_uiList[(int)INDEX_OF_FRIEND_UI.RESULT_UI]).setResultMSG("친구 추가 할 수 없습니다.");  // 실패 recv 시 실패 팝업 return
+            string errorMSG = "";
+
+            switch (curData.m_errorCode)
+            {
+                case ErrorTypeAddFriend.none:
+                    errorMSG = "알수 없는 이유로 친구 추가 실패";
+                    break;
+                case ErrorTypeAddFriend.notExistPlayer:
+                    break;
+                case ErrorTypeAddFriend.srcFriendListIsFull:
+                    break;
+                case ErrorTypeAddFriend.destFriendListIsFull:
+                    break;
+                case ErrorTypeAddFriend.destFriendRequestListIsFull:
+                    break;
+                case ErrorTypeAddFriend.alreadySendRequest:
+                    break;
+                case ErrorTypeAddFriend.count:
+                    break;
+            }
+
+
+
+            ((ResultUI)m_uiList[(int)INDEX_OF_FRIEND_UI.RESULT_UI]).setResultMSG(errorMSG);  // 실패 recv 시 실패 팝업 return
             openUI((int)INDEX_OF_FRIEND_UI.RESULT_UI);
         }
     }
@@ -345,17 +457,20 @@ public class friendUI : UI
         m_SearchZoneOBJ.SetActive(false);
         m_ListZoneOBJ.SetActive(true);
 
-        // if bSet == false
-        if(m_bSetting == false)
+        if (m_bSetting == false)
         {
-            clearFriendList();          // 리스트 초기화
-            requestFriendList();        // 리스트 요청
         }
         else // else if change list -> list sorting
         {
 
         }
+        clearConfirnFriendSlot();
+        requestConfirmFriend();
+        clearFriendList();          // 리스트 초기화
+        requestFriendList();        // 리스트 요청
     }
+
+
 
     public void openSearchZone()
     {

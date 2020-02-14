@@ -76,6 +76,7 @@ namespace PACKET
 
     public struct S_UserData
     {
+        public UInt32       m_gpID;
         public string       m_nickName;
     }
 

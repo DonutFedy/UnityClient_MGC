@@ -175,7 +175,7 @@ public class chatBox : MonoBehaviour
                 focusIF();
                 return;
             case SocialPacketType.packetTypeSocialChatNormalRequest:
-                C_SocialPacketChatRornalRequest realData = new C_SocialPacketChatRornalRequest();
+                C_SocialPacketChatNormalRequest realData = new C_SocialPacketChatNormalRequest();
                 realData.m_message = msg;
                 curData = realData;
                 break;
@@ -247,7 +247,7 @@ public class chatBox : MonoBehaviour
         switch (data.m_socialType)
         {
             case SocialPacketType.packetTypeSocialChatNormalResponse:
-                C_SocialPacketChatRornalResponse curData = (C_SocialPacketChatRornalResponse)data;
+                C_SocialPacketChatNormalResponse curData = (C_SocialPacketChatNormalResponse)data;
                 curParent = m_chatBoxParentRectTransform_All;
                 curChatText = curData.m_nickname+ " : " + curData.m_message;
                 curRect = m_scrollRect_All;

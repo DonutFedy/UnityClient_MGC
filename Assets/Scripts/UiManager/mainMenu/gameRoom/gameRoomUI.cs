@@ -246,7 +246,7 @@ public class gameRoomUI : UI
         m_chatBox.updateChat(data);
         C_BaseSocialPacket curData = (C_BaseSocialPacket)data;
         if (curData.m_socialType != SocialPacketType.packetTypeSocialChatNormalResponse) return;
-        C_SocialPacketChatRornalResponse normalData = (C_SocialPacketChatRornalResponse)curData;
+        C_SocialPacketChatNormalResponse normalData = (C_SocialPacketChatNormalResponse)curData;
 
         userInfoPrefab clientUser = m_userInfoList.Find((x) => { return x.getNickName() == normalData.m_nickname; });
         if (clientUser)

@@ -81,6 +81,7 @@ namespace PACKET
     {
         packetTypeSocialNone,
 
+        //chat
         packetTypeSocialChatNormalRequest,
         packetTypeSocialChatNormalResponse,
 
@@ -90,8 +91,46 @@ namespace PACKET
         packetTypeSocialChatGuildRequest,
         packetTypeSocialChatGuildResponse,
 
+        //Friend
+        packetTypeSocialAddFriendRequest, //친추 요청
+        packetTypeSocialAddFriendResponse,
+
+        packetTypeSocialConfirmFriendRequest, //받은 친추 목록
+        packetTypeSocialConfirmFriendResponse,
+
+        packetTypeSocialAcceptFriendRequest, //친구 요청 수락
+        packetTypeSocialAcceptFriendResponse,
+        packetTypeSocialFriendListRequest, //친구 리스트
+        packetTypeSocialFriendListResponse,
+
         packetTypeSocialCount,
     }
+
+
+    public enum ErrorTypeAddFriend : byte
+    {
+        none = 0,
+
+	    notExistPlayer,
+	    srcFriendListIsFull, 
+	    destFriendListIsFull,
+	    destFriendRequestListIsFull,
+	    alreadySendRequest,
+
+	    count,
+    };
+
+
+    public enum ErrorTypeAcceptFriend : byte
+    {
+        none = 0,
+
+        srcFriendListIsFull,
+        destFriendListIsFull,
+
+        count,
+    }
+
 
     public enum ErrorTypeEnterRoom : byte
     {

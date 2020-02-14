@@ -23,6 +23,8 @@ public class waitingResponse : MonoBehaviour
 
     public delegate void overTime();
     public overTime m_overTimeFunc;
+    public delegate bool clearWaiting();
+    public clearWaiting m_clearWaitingFUNC;
 
     private void OnEnable()
     {
@@ -30,13 +32,17 @@ public class waitingResponse : MonoBehaviour
     }
     private void OnDisable()
     {
-        
+        m_okMsgObj.SetActive(false);
     }
 
     public void closeOkMsgUI()
     {
         m_okMsgObj.SetActive(false);
         //
+        if (m_clearWaitingFUNC == null || m_clearWaitingFUNC() == false)
+        {
+            return;
+        }
         C_Anomaly anomaly = new C_Anomaly();
         if(GameManager.m_Instance.isConnectedMainServer())
         {
